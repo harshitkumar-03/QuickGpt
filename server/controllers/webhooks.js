@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import Transaction from "../models/transaction.js";
+import Transaction from "../models/Transaction.js";
 import User from "../models/User.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
