@@ -13,6 +13,6 @@ chatRouter.get("/get",protect,getChats);
 
 chatRouter.get("/create",protect,createChat);
 
-chatRouter.delete("/delete/:id",protect,deleteChat);
+chatRouter.post("/delete", protect, deleteChat);
 
 export default chatRouter;

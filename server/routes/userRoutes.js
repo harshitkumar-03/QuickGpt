@@ -16,6 +16,6 @@ userRouter.post('/login', loginUser);
 
 userRouter.get('/data', protect, getUserData);
 
-userRouter.get('published-images', getPublishedImages);
+userRouter.get('/published-images', getPublishedImages);
 
 export default userRouter;

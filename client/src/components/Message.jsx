@@ -1,24 +1,34 @@
 import React, { useEffect } from "react";
-import { assets } from "../assets/assets";
-import moment from 'moment';
-import Markdown from 'react-markdown'
+import moment from "moment";
+import Markdown from "react-markdown";
 import Prism from "prismjs";
+
+import { assets } from "../assets/assets";
+
+import "prismjs/themes/prism.css";
 
 const Message = ({ message }) => {
 
   useEffect(() => {
     Prism.highlightAll();
-  }, [message.content]);
 
+    // Debug
+    console.log("MESSAGE:", message);
+
+    if (message.isImage) {
+      console.log("IMAGE URL:", message.content);
+    }
+
+  }, [message]);
 
   const isUser = message.role === "user";
 
   return (
-
-
-    <div className={`flex my-4 ${isUser ? "justify-end" : "justify-start"}`}>
-      
-      {/* AI Icon */}
+    <div
+      className={`flex my-4 ${
+        isUser ? "justify-end" : "justify-start"
+      }`}
+    >
       {!isUser && (
         <img
           src={assets.logo_icon}
@@ -27,7 +37,6 @@ const Message = ({ message }) => {
         />
       )}
 
-      {/* Message Bubble */}
       <div
         className={`flex flex-col gap-2 p-3 px-4 border rounded-2xl max-w-[80%]
         ${
@@ -36,27 +45,31 @@ const Message = ({ message }) => {
             : "bg-primary/20 dark:bg-[#57317C]/20 border-[#80609F]/20"
         }`}
       >
-        {/* Image Message */}
         {message.isImage ? (
           <img
             src={message.content}
             alt="Generated"
             className="w-full max-w-md rounded-xl"
+            loading="lazy"
+            onLoad={() => console.log("✅ Image Loaded")}
+            onError={() => {
+              console.log("❌ Image Failed");
+              console.log("Failed URL:", message.content);
+            }}
           />
         ) : (
-          /* Text Message */
-          <p className="text-sm dark:text-primary whitespace-pre-wrap reset-tw">
-           <Markdown>{message.content}</Markdown> 
-          </p>
+          <div className="text-sm dark:text-primary whitespace-pre-wrap reset-tw overflow-x-auto">
+            <Markdown>
+              {message.content}
+            </Markdown>
+          </div>
         )}
 
-        {/* Timestamp */}
         <span className="text-xs text-gray-400 dark:text-[#B1A6C0]">
           {moment(message.timestamp).fromNow()}
         </span>
       </div>
 
-      {/* User Icon */}
       {isUser && (
         <img
           src={assets.user_icon}

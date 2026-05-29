@@ -9,6 +9,7 @@ export const textMessageController = async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // check credits
     if (req.user.credits < 1) {
       return res.json({
         success: false,
@@ -18,6 +19,15 @@ export const textMessageController = async (req, res) => {
 
     const { chatId, prompt } = req.body;
 
+    // validation
+    if (!chatId || !prompt) {
+      return res.json({
+        success: false,
+        message: "Missing details",
+      });
+    }
+
+    // find chat
     const chat = await Chat.findOne({
       userId,
       _id: chatId,
@@ -30,38 +40,38 @@ export const textMessageController = async (req, res) => {
       });
     }
 
+    // save user message
     chat.messages.push({
       role: "user",
       content: prompt,
-      timestamp: Date.now(),
+      timestamp: new Date(),
       isImage: false,
     });
 
-   const completion =
-  await openai.chat.completions.create({
+    // ai response
+    const completion =
+      await openai.chat.completions.create({
+        model: "google/gemini-2.0-flash-001",
 
-    model: "google/gemini-2.0-flash-001",
+        messages: chat.messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        })),
+      });
 
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
+    const reply = {
+      role: "assistant",
+      content: completion.choices[0].message.content,
+      timestamp: new Date(),
+      isImage: false,
+    };
 
-  });
-
-const reply = {
-  role: "assistant",
-  content: completion.choices[0].message.content,
-  timestamp: Date.now(),
-  isImage: false,
-};
-
+    // save assistant reply
     chat.messages.push(reply);
 
     await chat.save();
 
+    // decrease credits
     await User.updateOne(
       { _id: userId },
       { $inc: { credits: -1 } }
@@ -73,14 +83,17 @@ const reply = {
     });
 
   } catch (error) {
-    console.log(error);
+    console.log("TEXT ERROR => ", error);
 
     return res.json({
       success: false,
-      message: error.message,
+      message:
+        error.response?.data?.error?.message ||
+        error.message,
     });
   }
 };
+
 // image generation controller
 export const imageMessageController = async (req, res) => {
   try {
@@ -95,6 +108,14 @@ export const imageMessageController = async (req, res) => {
     }
 
     const { prompt, chatId, isPublished } = req.body;
+
+    // validation
+    if (!prompt || !chatId) {
+      return res.json({
+        success: false,
+        message: "Missing details",
+      });
+    }
 
     // find chat
     const chat = await Chat.findOne({
@@ -113,7 +134,7 @@ export const imageMessageController = async (req, res) => {
     chat.messages.push({
       role: "user",
       content: prompt,
-      timestamp: Date.now(),
+      timestamp: new Date(),
       isImage: false,
     });
 
@@ -143,12 +164,13 @@ export const imageMessageController = async (req, res) => {
       folder: "/quickgpt",
     });
 
+    // assistant reply
     const reply = {
       role: "assistant",
       content: uploadResponse.url,
-      timestamp: Date.now(),
+      timestamp: new Date(),
       isImage: true,
-      isPublished,
+      isPublished: isPublished || false,
     };
 
     // save reply
@@ -166,12 +188,15 @@ export const imageMessageController = async (req, res) => {
       success: true,
       reply,
     });
-  }  catch (error) {
-  console.log("FULL ERROR => ", error);
 
-  return res.json({
-    success: false,
-    message: error.message,
-  });
-}
-}
+  } catch (error) {
+    console.log("IMAGE ERROR => ", error);
+
+    return res.json({
+      success: false,
+      message:
+        error.response?.data?.error?.message ||
+        error.message,
+    });
+  }
+};

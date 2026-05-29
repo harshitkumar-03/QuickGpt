@@ -8,19 +8,58 @@
    font-family: "Outfit", sans-serif;
 }
 
-@theme {
+@theme{
   --color-primary : #E6CCFF;
 }
 ::-webkit-scrollbar{
   display : none;
 }
-.reset-tw : not(pre):not(code){
+.reset-tw :not(pre):not(code){
   all : revert;
-
 }
 .loader div:nth-child(2){
   animation-delay: 0.2s;
 }
 .loader div:nth-child(3){
   animation-delay: 0.2s;
+}
+
+//* ===== HOVER ICONS ===== */
+
+./* ================= DELETE + LOGOUT HOVER ================= */
+
+.delete-btn,
+.logout-btn {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+/* SHOW ON HOVER */
+
+.chat-item:hover .delete-btn,
+.user-item:hover .logout-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* HOVER EFFECT */
+
+.delete-btn:hover,
+.logout-btn:hover {
+  transform: scale(1.1);
+}
+
+/* LIGHT MODE */
+
+.delete-btn,
+.logout-btn {
+  filter: invert(1);
+}
+
+/* DARK MODE */
+
+.dark .delete-btn,
+.dark .logout-btn {
+  filter: invert(0);
 }
