@@ -51,7 +51,7 @@ export const textMessageController = async (req, res) => {
     // ai response
     const completion =
       await openai.chat.completions.create({
-       model: "google/gemini-2.0-flash",,
+       model: "google/gemini-2.0-flash",
 
         messages: chat.messages.map((msg) => ({
           role: msg.role,
