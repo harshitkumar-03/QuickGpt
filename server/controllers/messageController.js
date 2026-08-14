@@ -49,15 +49,17 @@ export const textMessageController = async (req, res) => {
     });
 
     // ai response
-    const completion =
-      await openai.chat.completions.create({
-      model: "google/gemini-3.1-flash-lite",
-       
-        messages: chat.messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })),
-      });
+   const completion =
+  await openai.chat.completions.create({
+    model: "google/gemini-3.1-flash-lite",
+
+    messages: chat.messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    })),
+
+    max_tokens: 4096,
+  });
 
     const reply = {
       role: "assistant",
